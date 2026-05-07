@@ -1,0 +1,37 @@
+.title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.list {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.item {
+  border: 1px solid rgb(226 232 240);
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.imageLink {
+  display: block;
+  margin-top: 0.25rem;
+  color: rgb(37 99 235);
+  text-decoration: underline;
+}
+
+.metaTime {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: rgb(100 116 139);
+}
+
+.metaAuthor {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: rgb(71 85 105);
+}

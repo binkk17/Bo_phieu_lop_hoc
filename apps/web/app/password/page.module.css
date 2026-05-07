@@ -1,0 +1,45 @@
+.formCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.input {
+  width: 100%;
+  border: 1px solid rgb(226 232 240);
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.submitButton {
+  margin-top: 0.25rem;
+  width: 100%;
+  border: none;
+  border-radius: 0.75rem;
+  background: rgb(15 23 42);
+  color: #fff;
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+.submitButton:disabled {
+  opacity: 0.5;
+}
+
+.submitButtonPressed {
+  background: #98c1e8;
+  color: #000000;
+}
+
+.message {
+  border-radius: 0.75rem;
+  background: rgb(15 23 42);
+  color: #fff;
+  padding: 0.5rem 0.75rem;
+  text-align: center;
+  font-size: 0.875rem;
+}

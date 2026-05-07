@@ -1,0 +1,99 @@
+.title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.field {
+  width: 100%;
+  border: 1px solid rgb(226 232 240);
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.textarea {
+  margin-top: 0.5rem;
+  resize: vertical;
+}
+
+.input {
+  margin-top: 0.5rem;
+}
+
+.fileRow {
+  margin-top: 0.5rem;
+  position: relative;
+}
+
+.fileInput {
+  margin-top: 0;
+  padding: 0.5rem 2.75rem 0.5rem 0.5rem;
+  color: rgb(71 85 105);
+  background: #f8fafc;
+}
+
+.fileInput::file-selector-button {
+  margin-right: 0.625rem;
+  border: none;
+  border-radius: 0.625rem;
+  background: rgb(15 23 42);
+  color: #fff;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.fileInput::file-selector-button:hover {
+  background: rgb(30 41 59);
+}
+
+.fileHint {
+  margin-top: 0.375rem;
+  font-size: 0.75rem;
+  color: rgb(100 116 139);
+}
+
+.clearButton {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 8px;
+  background: rgb(226 232 240);
+  color: rgb(51 65 85);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.clearButton:active {
+  background: #98c1e8;
+  color: #000000;
+}
+
+.submitButton {
+  margin-top: 0.75rem;
+  width: 100%;
+  border: none;
+  border-radius: 0.75rem;
+  background: rgb(15 23 42);
+  color: #fff;
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+.submitButton:disabled {
+  opacity: 0.5;
+}
+
+.submitButtonPressed {
+  background: #98c1e8;
+  color: #000000;
+}

@@ -1,0 +1,8 @@
+.message {
+  border-radius: 0.75rem;
+  background: rgb(15 23 42);
+  color: #fff;
+  padding: 0.5rem 0.75rem;
+  text-align: center;
+  font-size: 0.875rem;
+}

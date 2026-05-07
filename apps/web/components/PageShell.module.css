@@ -1,0 +1,16 @@
+.topCard {
+  text-align: center;
+  margin-bottom: 12px;
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-left-radius: 1rem !important;
+  border-bottom-right-radius: 1rem !important;
+}
+
+.topTitle {
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 1.5rem;
+  line-height: 1.15;
+  font-weight: 700;
+}

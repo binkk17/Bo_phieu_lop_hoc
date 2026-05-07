@@ -1,0 +1,21 @@
+.app-shell-outer {
+  min-height: 100dvh;
+}
+
+.page-shell-content-offset {
+  margin-top: var(--content-offset, 16px);
+}
+
+/* Desktop preview frame to mimic a 360x740 mobile viewport */
+@media (min-width: 768px) {
+  .app-shell-preview {
+    width: var(--mobile-base-width);
+    min-height: var(--mobile-base-height);
+    max-height: calc(100dvh - 24px);
+    overflow-y: auto;
+    border: 1px solid rgb(226 232 240);
+    border-radius: 24px;
+    box-shadow: 0 20px 45px -20px rgba(15, 23, 42, 0.35);
+    background: rgb(248 250 252);
+  }
+}

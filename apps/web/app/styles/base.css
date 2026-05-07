@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --mobile-base-width: 360px;
+  --mobile-base-height: 740px;
+  --mobile-large-width: 390px;
+  --mobile-large-height: 844px;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900;
+}

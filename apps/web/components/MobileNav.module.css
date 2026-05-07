@@ -1,0 +1,109 @@
+.nav {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 10px;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  border-radius: 12px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #334155;
+  background: #f1f5f9;
+  text-decoration: none;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.linkButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  border: none;
+  border-radius: 12px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #334155;
+  background: #f1f5f9;
+  cursor: pointer;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.linkActive {
+  color: #ffffff;
+  background: #0f172a;
+}
+
+.linkPressed {
+  background: #98c1e8;
+  color: #000000;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.45);
+  padding: 16px;
+}
+
+.modal {
+  width: min(92vw, 340px);
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 14px;
+  box-shadow: 0 20px 40px -24px rgba(15, 23, 42, 0.65);
+}
+
+.modalText {
+  font-size: 14px;
+  color: #0f172a;
+}
+
+.modalActions {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.cancelButton,
+.confirmButton {
+  border-radius: 10px;
+  border: none;
+  min-height: 38px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cancelButton {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.confirmButton {
+  background: #0f172a;
+  color: #ffffff;
+}
+
+.link:active,
+.linkButton:active,
+.cancelButton:active,
+.confirmButton:active {
+  background: #98c1e8;
+  color: #000000;
+}

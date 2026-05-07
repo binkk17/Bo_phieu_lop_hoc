@@ -1,0 +1,15 @@
+.app-card {
+  @apply rounded-2xl bg-white p-4 shadow-sm;
+}
+
+.app-info-card {
+  @apply rounded-2xl bg-white p-4 text-sm shadow-sm;
+}
+
+.app-logout-button {
+  @apply w-full rounded-xl border border-slate-300 px-4 py-3.5 text-sm font-medium;
+}
+
+.app-section-gap {
+  margin-top: 16px;
+}
