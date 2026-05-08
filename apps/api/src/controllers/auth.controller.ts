@@ -1,19 +1,25 @@
 import { Request, Response } from "express";
 import {
+  consumeHighRegisterInvite,
+  createHighRegisterInvite,
   getProfile,
   loginUser,
   refreshSession,
+  registerHighUser,
   registerUser,
   revokeSessionById,
   updatePassword,
   updateProfile
 } from "../services/auth.service.js";
 import {
+  createHighInviteSchema,
   loginSchema,
+  registerHighSchema,
   registerSchema,
   updatePasswordSchema,
   updateProfileSchema
 } from "../validators/auth.validator.js";
+import { env } from "../config/env.js";
 
 const authCookieOptions = {
   httpOnly: true,
@@ -31,6 +37,10 @@ const refreshCookieOptions = {
   ...authCookieOptions,
   maxAge: 7 * 24 * 60 * 60 * 1000
 };
+
+const highRegisterAttempts = new Map<string, { count: number; firstAt: number }>();
+const HIGH_REGISTER_MAX_ATTEMPTS = 5;
+const HIGH_REGISTER_WINDOW_MS = 10 * 60 * 1000;
 
 function getDeviceId(req: Request) {
   const value = req.headers["x-device-id"];
@@ -51,6 +61,35 @@ function getCookieValue(cookieHeader: string | undefined, key: string) {
   return decodeURIComponent(matched.slice(`${key}=`.length));
 }
 
+function getThrottleKey(req: Request) {
+  return req.ip || "unknown-ip";
+}
+
+function canAttemptHighRegister(key: string) {
+  const now = Date.now();
+  const info = highRegisterAttempts.get(key);
+  if (!info) return true;
+  if (now - info.firstAt > HIGH_REGISTER_WINDOW_MS) {
+    highRegisterAttempts.delete(key);
+    return true;
+  }
+  return info.count < HIGH_REGISTER_MAX_ATTEMPTS;
+}
+
+function markFailedHighRegisterAttempt(key: string) {
+  const now = Date.now();
+  const info = highRegisterAttempts.get(key);
+  if (!info || now - info.firstAt > HIGH_REGISTER_WINDOW_MS) {
+    highRegisterAttempts.set(key, { count: 1, firstAt: now });
+    return;
+  }
+  highRegisterAttempts.set(key, { count: info.count + 1, firstAt: info.firstAt });
+}
+
+function clearFailedHighRegisterAttempts(key: string) {
+  highRegisterAttempts.delete(key);
+}
+
 export async function registerController(req: Request, res: Response) {
   const parse = registerSchema.safeParse(req.body);
   if (!parse.success) {
@@ -66,9 +105,63 @@ export async function registerController(req: Request, res: Response) {
   if ("message" in result) {
     return res.status(result.status).json({ message: result.message });
   }
-  res.cookie("auth_token", result.data.token, accessCookieOptions);
-  res.cookie("refresh_token", result.data.refreshToken, refreshCookieOptions);
   return res.status(result.status).json(result.data);
+}
+
+export async function registerHighController(req: Request, res: Response) {
+  const throttleKey = getThrottleKey(req);
+  if (!canAttemptHighRegister(throttleKey)) {
+    return res.status(429).json({ message: "Bạn đã nhập sai quá nhiều lần. Vui lòng thử lại sau." });
+  }
+
+  const parse = registerHighSchema.safeParse(req.body);
+  if (!parse.success) {
+    return res.status(400).json({ message: "Dữ liệu đăng ký HIGH không hợp lệ." });
+  }
+
+  const inviteResult = await consumeHighRegisterInvite(parse.data.inviteToken);
+  if ("message" in inviteResult) {
+    markFailedHighRegisterAttempt(throttleKey);
+    return res.status(inviteResult.status).json({ message: inviteResult.message });
+  }
+
+  clearFailedHighRegisterAttempts(throttleKey);
+  const { confirmPassword: _ignore, inviteToken: _inviteToken, ...payload } = parse.data;
+  const result = await registerHighUser(payload, {
+    deviceId: getDeviceId(req),
+    userAgent: getUserAgent(req),
+    ipAddress: req.ip
+  });
+  if ("message" in result) {
+    return res.status(result.status).json({ message: result.message });
+  }
+  return res.status(result.status).json(result.data);
+}
+
+export async function createHighInviteController(req: Request, res: Response) {
+  if (!env.highRegisterSecret) {
+    return res.status(503).json({ message: "Chưa cấu hình khóa bảo mật tạo mã mời HIGH." });
+  }
+
+  const throttleKey = getThrottleKey(req);
+  if (!canAttemptHighRegister(throttleKey)) {
+    return res.status(429).json({ message: "Bạn đã nhập sai quá nhiều lần. Vui lòng thử lại sau." });
+  }
+
+  const parse = createHighInviteSchema.safeParse(req.body);
+  if (!parse.success) {
+    return res.status(400).json({ message: "Dữ liệu tạo mã mời HIGH không hợp lệ." });
+  }
+
+  if (parse.data.securityKey !== env.highRegisterSecret) {
+    markFailedHighRegisterAttempt(throttleKey);
+    return res.status(403).json({ message: "Khóa bảo mật không đúng." });
+  }
+
+  clearFailedHighRegisterAttempts(throttleKey);
+  const ttlMinutes = parse.data.ttlMinutes ?? 15;
+  const invite = await createHighRegisterInvite(ttlMinutes);
+  return res.status(201).json(invite);
 }
 
 export async function loginController(req: Request, res: Response) {

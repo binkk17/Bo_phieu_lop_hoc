@@ -1,4 +1,4 @@
-import { AppUser, AuthResponse, PostItem } from "../types/app";
+import { AppUser, AuthResponse, PostItem, RegisterResponse } from "../types/app";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
 const DEVICE_ID_KEY = "forum_device_id";
@@ -13,6 +13,20 @@ type RegisterPayload = {
   personalCode: string;
   password: string;
   confirmPassword: string;
+};
+
+type RegisterHighPayload = RegisterPayload & {
+  inviteToken: string;
+};
+
+type CreateHighInvitePayload = {
+  securityKey: string;
+  ttlMinutes?: number;
+};
+
+type HighInviteResponse = {
+  inviteToken: string;
+  expiresAt: string;
 };
 
 type LoginPayload = {
@@ -117,14 +131,6 @@ async function fetchWithAuthRetry(input: RequestInfo | URL, init?: RequestInit) 
   });
 }
 
-export function getStoredToken() {
-  return "";
-}
-
-export function setStoredToken(_token: string) {}
-
-export function clearStoredToken() {}
-
 export async function register(payload: RegisterPayload) {
   const res = await fetchWithAuthRetry(`${API_BASE_URL}/api/auth/register`, {
     method: "POST",
@@ -133,7 +139,29 @@ export async function register(payload: RegisterPayload) {
     },
     body: JSON.stringify(payload)
   });
-  return parseResponse<AuthResponse>(res);
+  return parseResponse<RegisterResponse>(res);
+}
+
+export async function registerHigh(payload: RegisterHighPayload) {
+  const res = await fetchWithAuthRetry(`${API_BASE_URL}/api/auth/register-high`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+  return parseResponse<RegisterResponse>(res);
+}
+
+export async function createHighInvite(payload: CreateHighInvitePayload) {
+  const res = await fetchWithAuthRetry(`${API_BASE_URL}/api/auth/high-invite`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+  return parseResponse<HighInviteResponse>(res);
 }
 
 export async function login(payload: LoginPayload) {

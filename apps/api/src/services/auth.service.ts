@@ -44,8 +44,16 @@ function hashRefreshToken(token: string) {
   return crypto.createHash("sha256").update(token).digest("hex");
 }
 
+function hashInviteToken(token: string) {
+  return crypto.createHash("sha256").update(token).digest("hex");
+}
+
 function getRefreshExpiryDate() {
   return new Date(Date.now() + REFRESH_TOKEN_TTL_MS);
+}
+
+function buildHighInviteToken() {
+  return `hi_${crypto.randomBytes(24).toString("hex")}`;
 }
 
 async function writeAuditLog(args: {
@@ -192,6 +200,68 @@ function toPublicUser(user: {
 }
 
 export async function registerUser(input: RegisterInput, context: SessionContext) {
+  return registerWithRole(input, "LOW", "REGISTER", context);
+}
+
+export async function registerHighUser(input: RegisterInput, context: SessionContext) {
+  return registerWithRole(input, "HIGH", "REGISTER_HIGH", context);
+}
+
+export async function createHighRegisterInvite(ttlMinutes: number) {
+  const inviteToken = buildHighInviteToken();
+  const tokenHash = hashInviteToken(inviteToken);
+  const expiresAt = new Date(Date.now() + ttlMinutes * 60 * 1000);
+
+  await prisma.highRegisterInvite.create({
+    data: {
+      tokenHash,
+      expiresAt
+    }
+  });
+
+  return { inviteToken, expiresAt };
+}
+
+export async function consumeHighRegisterInvite(inviteToken: string) {
+  const now = new Date();
+  const tokenHash = hashInviteToken(inviteToken);
+  const invite = await prisma.highRegisterInvite.findUnique({
+    where: { tokenHash }
+  });
+
+  if (!invite) {
+    return { status: 403 as const, message: "Mã mời HIGH không hợp lệ." };
+  }
+  if (invite.usedAt) {
+    return { status: 403 as const, message: "Mã mời HIGH đã được sử dụng." };
+  }
+  if (invite.expiresAt.getTime() <= now.getTime()) {
+    return { status: 403 as const, message: "Mã mời HIGH đã hết hạn." };
+  }
+
+  const updated = await prisma.highRegisterInvite.updateMany({
+    where: {
+      id: invite.id,
+      usedAt: null
+    },
+    data: {
+      usedAt: now
+    }
+  });
+
+  if (updated.count === 0) {
+    return { status: 403 as const, message: "Mã mời HIGH không còn hiệu lực." };
+  }
+
+  return { status: 200 as const };
+}
+
+async function registerWithRole(
+  input: RegisterInput,
+  role: UserRole,
+  action: "REGISTER" | "REGISTER_HIGH",
+  context: SessionContext
+) {
   const existingByCode = await prisma.user.findUnique({ where: { personalCode: input.personalCode } });
   const existingByAccount = await prisma.user.findUnique({ where: { accountName: input.accountName } });
 
@@ -209,14 +279,13 @@ export async function registerUser(input: RegisterInput, context: SessionContext
       displayName: input.displayName?.trim() || generateAnonymousDisplayName(),
       personalCode: input.personalCode,
       passwordHash,
-      role: "LOW"
+      role
     }
   });
 
-  const { accessToken, refreshToken } = await createFreshSession(user, context);
   await writeAuditLog({
     userId: user.id,
-    action: "REGISTER",
+    action,
     result: "SUCCESS",
     deviceId: context.deviceId,
     userAgent: context.userAgent,
@@ -224,7 +293,7 @@ export async function registerUser(input: RegisterInput, context: SessionContext
   });
   return {
     status: 201 as const,
-    data: { token: accessToken, refreshToken, user: toPublicUser(user) }
+    data: { user: toPublicUser(user) }
   };
 }
 

@@ -1,3 +1,7 @@
 .message {
   @apply rounded-xl bg-slate-900 px-3 py-2 text-center text-sm text-red-400;
 }
+
+.highRegisterHint {
+  @apply mt-3 text-center text-sm text-slate-700;
+}

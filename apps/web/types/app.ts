@@ -13,6 +13,10 @@ export type AuthResponse = {
   user: AppUser;
 };
 
+export type RegisterResponse = {
+  user: AppUser;
+};
+
 export type PostItem = {
   id: string;
   contentText?: string | null;

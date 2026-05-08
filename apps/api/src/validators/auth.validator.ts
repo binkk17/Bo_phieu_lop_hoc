@@ -1,14 +1,30 @@
 import { z } from "zod";
 
-export const registerSchema = z.object({
+const registerBaseSchema = z.object({
   accountName: z.string().trim().min(3).max(50),
   displayName: z.string().trim().min(2).max(100).optional(),
   personalCode: z.string().trim().min(3).max(30),
   password: z.string().min(6).max(100),
   confirmPassword: z.string().min(6).max(100)
-}).refine((data) => data.password === data.confirmPassword, {
+});
+
+export const registerSchema = registerBaseSchema.refine((data) => data.password === data.confirmPassword, {
   message: "Mật khẩu nhập lại không khớp.",
   path: ["confirmPassword"]
+});
+
+export const registerHighSchema = registerBaseSchema
+  .extend({
+    inviteToken: z.string().trim().min(20).max(300)
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Mật khẩu nhập lại không khớp.",
+    path: ["confirmPassword"]
+  });
+
+export const createHighInviteSchema = z.object({
+  securityKey: z.string().trim().min(1).max(200),
+  ttlMinutes: z.number().int().min(1).max(60).optional()
 });
 
 export const loginSchema = z.object({

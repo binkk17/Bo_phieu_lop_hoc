@@ -1,0 +1,31 @@
+.message {
+  @apply mb-3 rounded-xl bg-slate-900 px-3 py-2 text-center text-sm text-red-400;
+}
+
+.form {
+  @apply mx-auto flex w-full max-w-md flex-col gap-3 rounded-2xl bg-white/95 p-5 shadow;
+}
+
+.title {
+  @apply text-lg font-semibold text-slate-900;
+}
+
+.hint {
+  @apply text-sm text-slate-600;
+}
+
+.label {
+  @apply text-sm font-medium text-slate-700;
+}
+
+.input {
+  @apply rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-400;
+}
+
+.button {
+  @apply rounded-xl bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70;
+}
+
+.backLink {
+  @apply mt-1 text-center text-sm text-slate-600 underline;
+}

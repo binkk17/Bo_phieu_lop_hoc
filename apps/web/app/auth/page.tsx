@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AuthPanel } from "../../components/AuthPanel";
 import { PageShell } from "../../components/PageShell";
@@ -38,16 +39,22 @@ export default function AuthPage() {
     setLoading(true);
     setMessage("");
     try {
-      const data =
-        mode === "register"
-          ? await register({
-              accountName,
-              displayName: displayName || undefined,
-              personalCode,
-              password,
-              confirmPassword
-            })
-          : await login({ accountName, password });
+      if (mode === "register") {
+        await register({
+          accountName,
+          displayName: displayName || undefined,
+          personalCode,
+          password,
+          confirmPassword
+        });
+        setMode("login");
+        setPassword("");
+        setConfirmPassword("");
+        setMessage("Đăng ký thành công. Vui lòng đăng nhập.");
+        return;
+      }
+
+      const data = await login({ accountName, password });
       router.replace(data.user.role === "HIGH" ? "/admin" : "/home");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Xác thực thất bại.");
@@ -83,6 +90,9 @@ export default function AuthPage() {
           }}
           onSubmit={handleAuthSubmit}
         />
+        <p className={styles.highRegisterHint}>
+          Cần tạo tài khoản quản trị? <Link href="/auth/high-register">Đăng ký HIGH</Link>
+        </p>
       </div>
     </PageShell>
   );

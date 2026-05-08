@@ -1,9 +1,11 @@
 import { Router } from "express";
 import {
+  createHighInviteController,
   loginController,
   logoutController,
   meController,
   refreshController,
+  registerHighController,
   registerController,
   updatePasswordController,
   updateMeController
@@ -13,6 +15,8 @@ import { requireAuth } from "../middlewares/auth.middleware.js";
 export const authRouter = Router();
 
 authRouter.post("/register", registerController);
+authRouter.post("/high-invite", createHighInviteController);
+authRouter.post("/register-high", registerHighController);
 authRouter.post("/login", loginController);
 authRouter.post("/refresh", refreshController);
 authRouter.post("/logout", requireAuth, logoutController);
