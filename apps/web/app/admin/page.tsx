@@ -1,13 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { PageShell } from "../../components/PageShell";
 import { PostComposer } from "../../components/PostComposer";
 import { PostFeed } from "../../components/PostFeed";
 import { createPost, listPosts, shouldDeferAuthRedirect } from "../../lib/api";
 import { getSessionUser } from "../../lib/auth-client";
 import { AppUser, PostItem } from "../../types/app";
+import { usePostFeedAutoRefresh } from "../../hooks/usePostFeedAutoRefresh";
 
 export default function AdminPage() {
   const router = useRouter();
@@ -17,6 +18,11 @@ export default function AdminPage() {
   const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+
+  const refreshPosts = useCallback(async () => {
+    const postList = await listPosts();
+    setPosts(postList);
+  }, []);
 
   useEffect(() => {
     getSessionUser().then(async (session) => {
@@ -32,10 +38,11 @@ export default function AdminPage() {
         return;
       }
 
-      const postList = await listPosts();
-      setPosts(postList);
+      await refreshPosts();
     });
-  }, [router]);
+  }, [router, refreshPosts]);
+
+  usePostFeedAutoRefresh(me?.role === "HIGH", refreshPosts);
 
   async function handleCreatePost() {
     if (!me) return;
@@ -49,8 +56,7 @@ export default function AdminPage() {
         contentText: contentText.trim() || undefined,
         imageUrl: imageUrl.trim() || undefined
       });
-      const postList = await listPosts();
-      setPosts(postList);
+      await refreshPosts();
       setContentText("");
       setImageUrl("");
       setMessage("Gửi kiến nghị thành công.");

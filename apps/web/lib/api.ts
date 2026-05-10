@@ -39,6 +39,11 @@ type PostPayload = {
   imageUrl?: string;
 };
 
+export type PostCreatedEvent = {
+  postId: string;
+  at: string;
+};
+
 async function parseResponse<T>(res: Response): Promise<T> {
   const text = await res.text();
   const data = text ? JSON.parse(text) : {};
@@ -228,4 +233,32 @@ export async function listPosts() {
   });
   const data = await parseResponse<{ data: PostItem[] }>(res);
   return data.data;
+}
+
+export function subscribePostStream(
+  onPostCreated: (event: PostCreatedEvent) => void,
+  onError?: () => void
+) {
+  const stream = new EventSource(`${API_BASE_URL}/api/posts/stream`, {
+    withCredentials: true
+  });
+
+  const handlePostCreated = (evt: MessageEvent<string>) => {
+    try {
+      const data = JSON.parse(evt.data) as PostCreatedEvent;
+      onPostCreated(data);
+    } catch {
+      // Ignore malformed SSE payloads.
+    }
+  };
+
+  stream.addEventListener("post-created", handlePostCreated as EventListener);
+  stream.onerror = () => {
+    onError?.();
+  };
+
+  return () => {
+    stream.removeEventListener("post-created", handlePostCreated as EventListener);
+    stream.close();
+  };
 }
